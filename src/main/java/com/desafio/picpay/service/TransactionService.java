@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
-
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
@@ -22,6 +21,7 @@ public class TransactionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionService.class);
 
     private final TransactionRepository transactionRepository;
+    private final AuthorizerService authorizerService;
     private final WalletRepository walletRepository;
 
     @Transactional
@@ -39,6 +39,8 @@ public class TransactionService {
 
         walletRepository.save(walletPayer.debit(transaction.getValue()));
         walletRepository.save(walletPayee.credit(transaction.getValue()));
+
+        authorizerService.authorize(transaction);
 
         return newTransaction;
     }
