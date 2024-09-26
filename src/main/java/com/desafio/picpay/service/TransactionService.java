@@ -22,6 +22,7 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final AuthorizerService authorizerService;
+    private final NotificationService notificationService;
     private final WalletRepository walletRepository;
 
     @Transactional
@@ -41,6 +42,8 @@ public class TransactionService {
         walletRepository.save(walletPayee.credit(transaction.getValue()));
 
         authorizerService.authorize(transaction);
+
+        notificationService.notify(transaction);
 
         return newTransaction;
     }

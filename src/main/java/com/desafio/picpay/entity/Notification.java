@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Notification {
-    private boolean message;
+    private Boolean message;
 }
