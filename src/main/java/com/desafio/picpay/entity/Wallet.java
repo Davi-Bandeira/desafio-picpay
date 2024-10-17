@@ -4,6 +4,8 @@ import com.desafio.picpay.enumerated.WalletType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -22,6 +24,7 @@ import java.math.BigDecimal;
 public class Wallet {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long fullName;
@@ -33,17 +36,17 @@ public class Wallet {
     private String password;
 
     @Enumerated(value = EnumType.STRING)
-    private WalletType type;
+    private WalletType walletType;
 
     private BigDecimal balance;
 
     public Wallet debit(BigDecimal value) {
         return new Wallet(id, fullName, cpf, email, password,
-                type, balance.subtract(value));
+                walletType, balance.subtract(value));
     }
 
     public Wallet credit(BigDecimal value) {
         return new Wallet(id, fullName, cpf, email, password,
-                type, balance.add(value));
+                walletType, balance.add(value));
     }
 }

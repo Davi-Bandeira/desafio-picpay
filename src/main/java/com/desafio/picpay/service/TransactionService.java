@@ -6,13 +6,14 @@ import com.desafio.picpay.enumerated.WalletType;
 import com.desafio.picpay.repository.TransactionRepository;
 import com.desafio.picpay.repository.WalletRepository;
 import jakarta.transaction.InvalidTransactionException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,13 +34,13 @@ public class TransactionService {
                 .orElseThrow(() -> new InvalidTransactionException("Not found payee | id: " + transaction.getPayee()));
 
         LOGGER.info("validating transaction {}...", transaction);
-        if (isTransactionValid(walletPayer, walletPayee, transaction.getValue()))
+        if (isTransactionValid(walletPayer, walletPayee, transaction.getAmount()))
             throw new InvalidTransactionException("Invalid Transaction - " + transaction);
 
         var newTransaction = transactionRepository.save(transaction);
 
-        walletRepository.save(walletPayer.debit(transaction.getValue()));
-        walletRepository.save(walletPayee.credit(transaction.getValue()));
+        walletRepository.save(walletPayer.debit(transaction.getAmount()));
+        walletRepository.save(walletPayee.credit(transaction.getAmount()));
 
         authorizerService.authorize(transaction);
 
@@ -49,8 +50,13 @@ public class TransactionService {
     }
 
     private boolean isTransactionValid(Wallet payer, Wallet payee, BigDecimal value) {
-        return payer.getType().equals(WalletType.COMMON) &&
+        return payer.getWalletType().equals(WalletType.COMMON) &&
                payer.getBalance().compareTo(value) >= 0 &&
                !payer.getId().equals(payee.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public List<Transaction> findAll() {
+        return transactionRepository.findAll();
     }
 }

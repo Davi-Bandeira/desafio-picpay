@@ -16,7 +16,6 @@ public class NotificationConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationConsumer.class);
     private final RestClient restClient;
 
-    // Instável: http://o4d9z.mocklab.io/notify
     public NotificationConsumer(RestClient.Builder builder) {
         this.restClient = builder.baseUrl(
                         "https://run.mocky.io/v3/54dc2cf1-3add-45b5-b5a9-6bf7e7f1f4a6")
@@ -28,8 +27,9 @@ public class NotificationConsumer {
         LOGGER.info("notifying transaction {}...", transaction);
 
         var response = restClient.get().retrieve().toEntity(Notification.class);
+        var message = Objects.requireNonNull(response.getBody()).getMessage();
 
-        if (response.getStatusCode().isError() || !Objects.requireNonNull(response.getBody()).getMessage())
+        if (response.getStatusCode().isError() || Boolean.TRUE.equals(message))
             throw new NotificationException("Error notifying transaction " + transaction);
 
         LOGGER.info("notification has been sent {}...", response.getBody());

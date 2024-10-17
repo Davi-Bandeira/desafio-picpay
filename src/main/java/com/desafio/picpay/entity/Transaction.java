@@ -27,7 +27,7 @@ public class Transaction {
 
     private Long payee;
 
-    private BigDecimal value;
+    private BigDecimal amount;
 
     @CreatedDate
     LocalDateTime createdAt;
